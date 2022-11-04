@@ -40,8 +40,8 @@ def test_big():
         edges,
         start_nodes,
         end_nodes,
-        edge_objectives={"distance"},
-        node_objectives={"rating_diff"},
+        edge_objectives={"distance": 1},
+        node_objectives={"rating_diff": 1},
     )
     print(json.dumps(soln, sort_keys=True, indent=4))
     assert_solution_valid(nodes, edges, soln["edges"], start_nodes, end_nodes)

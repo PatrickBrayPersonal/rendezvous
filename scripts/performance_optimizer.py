@@ -33,8 +33,8 @@ if __name__ == "__main__":
                     edges,
                     start_nodes,
                     end_nodes,
-                    edge_objectives={"distance"},
-                    node_objectives={"rat_diff"},
+                    edge_objectives={"distance": 1},
+                    node_objectives={"rat_diff": 1},
                 )
                 print(json.dumps(soln, sort_keys=True, indent=4))
                 del soln["edges"]
