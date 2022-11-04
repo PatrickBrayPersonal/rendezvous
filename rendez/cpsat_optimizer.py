@@ -49,7 +49,7 @@ def optimize(
         axis=1,
     )
 
-    nodes[nodes["type"] != "start"].apply(
+    nodes[~nodes["id"].isin(start_nodes)].apply(
         add_node_objective_vars,
         args=(
             model,
