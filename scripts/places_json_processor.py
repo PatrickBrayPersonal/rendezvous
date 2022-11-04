@@ -2,7 +2,7 @@ import json
 import flatdict
 import pandas as pd
 from haversine import haversine, Unit
-
+from rendez.preprocessing import biz_lists_to_node_edge_dfs
 
 
 def create_business(business, number):  # Maps business data to a dictionary
@@ -85,70 +85,13 @@ def og(files):
         )  # overwrites the previous_nodes variable with the nodes from this loop run
 
 
-def create_type_df(biz_list: list, type_: str, type_order: int) -> pd.DataFrame:
-    """
-    Uses a businesses dictionary to create a dataframe that is usable by the optimizer
-    """
-    df = pd.DataFrame([flatdict.FlatDict(biz) for biz in biz_list])
-    df["type"] = type_
-    df["type_order"] = type_order
-    return df
-
-
-def create_nodes_df(biz_lists: list, types: list) -> pd.DataFrame:
-    """
-    Creates a single node dictionary of all businesses with specifed order
-
-    biz_lists is a list of lists of dictionaries ordered by the business type order
-    """
-    nodes = [
-        create_type_df(tup[0], tup[1], i) for i, tup in enumerate(zip(biz_lists, types))
-    ]
-    nodes = pd.concat(nodes).reset_index(drop=True)
-    nodes["id"] = nodes.index
-    return nodes
-
-
-def create_edges_df(nodes: pd.DataFrame) -> pd.DataFrame:
-    """
-    Creates the links that can happen between businesses
-    going in the specified type_order from the nodes dataframe
-    """
-    def apply_distance(x):
-        dest_coord = (x["geometry:location:lat"], x["geometry:location:lng"])
-        return haversine(source_coord, dest_coord, unit=Unit.MILES)
-
-    edges = []
-    for idx, row in nodes.iterrows():
-        if row["type_order"] < nodes["type_order"].max():
-            df = nodes[nodes["type_order"] == row["type_order"] + 1]
-            df["source"] = row['id']
-            df['destination'] = df['id']
-            source_coord = (row["geometry:location:lat"], row["geometry:location:lng"])
-            df['distance'] = df.apply(apply_distance, axis=1)
-            edges.append(df)
-    return pd.concat(edges).reset_index(drop=True)[["source", "destination", "distance"]]
-            
 def load_json(file):  # Loads Json file
     with open(file, errors="ignore") as jsonFile:
         jsonObject = json.load(jsonFile)
         jsonFile.close()
     return jsonObject
 
-def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> dict:
-    """
-    generates the edge and node dataframes to be used by the CPSAT Solver
-    Args:
-        biz_lists: list of lists of places api data
-            the inner lists are businesses of the same type
-            the lists are in the order in which you wish to visit the businesses
-        types: list of string of business types
-    """
-    nodes = create_nodes_df(biz_lists, types)
-    edges = create_edges_df(nodes)
-    return {"nodes": nodes, "edges": edges}
-
-if __name__ == "__main__":
+def test_preprocess_from_json():
     FILES = [
         "places_movie.json",
         "places_bar.json",
@@ -156,14 +99,20 @@ if __name__ == "__main__":
     ]  # test json files
     TYPES = ["start", "movie", "bar", "restaurant"]
     USER_NODE = [
-        [{"geometry:location:lat": 38.919188013297024, "geometry:location:lng": -77.02494496019774}]
+        [
+            {
+                "geometry:location:lat": 38.919188013297024,
+                "geometry:location:lng": -77.02494496019774,
+            }
+        ]
     ]  # the starting location
 
     file_contents = [load_json(f"test_data/{file}")["results"] for file in FILES]
     biz_lists = USER_NODE + file_contents
 
     res = biz_lists_to_node_edge_dfs(biz_lists=biz_lists, types=TYPES)
-
-
-
     print('complete')
+
+
+if __name__ == "__main__":
+    test_preprocess_from_json()

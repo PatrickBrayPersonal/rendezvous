@@ -1,0 +1,66 @@
+import json
+import flatdict
+import pandas as pd
+from haversine import haversine, Unit
+
+
+def create_type_df(biz_list: list, type_: str, type_order: int) -> pd.DataFrame:
+    """
+    Uses a businesses dictionary to create a dataframe that is usable by the optimizer
+    """
+    df = pd.DataFrame([flatdict.FlatDict(biz) for biz in biz_list])
+    df.loc[:, "type"] = type_
+    df.loc[:, "type_order"] = type_order
+    return df
+
+
+def create_nodes_df(biz_lists: list, types: list) -> pd.DataFrame:
+    """
+    Creates a single node dictionary of all businesses with specifed order
+
+    biz_lists is a list of lists of dictionaries ordered by the business type order
+    """
+    nodes = [
+        create_type_df(tup[0], tup[1], i) for i, tup in enumerate(zip(biz_lists, types))
+    ]
+    nodes = pd.concat(nodes).reset_index(drop=True)
+    nodes.loc[:, "id"] = nodes.index
+    return nodes
+
+
+def create_edges_df(nodes: pd.DataFrame) -> pd.DataFrame:
+    """
+    Creates the links that can happen between businesses
+    going in the specified type_order from the nodes dataframe
+    """
+
+    def apply_distance(x):
+        dest_coord = (x["geometry:location:lat"], x["geometry:location:lng"])
+        return haversine(source_coord, dest_coord, unit=Unit.MILES)
+
+    edges = []
+    for idx, row in nodes.iterrows():
+        if row["type_order"] < nodes["type_order"].max():
+            df = nodes[nodes["type_order"] == row["type_order"] + 1]
+            df.loc[:, "source"] = row["id"]
+            df.loc[:, "destination"] = df["id"]
+            source_coord = (row["geometry:location:lat"], row["geometry:location:lng"])
+            df.loc[:, "distance"] = df.apply(apply_distance, axis=1)
+            edges.append(df)
+    return pd.concat(edges).reset_index(drop=True)[
+        ["source", "destination", "distance"]
+    ]
+
+
+def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> dict:
+    """
+    generates the edge and node dataframes to be used by the CPSAT Solver
+    Args:
+        biz_lists: list of lists of places api data
+            the inner lists are businesses of the same type
+            the lists are in the order in which you wish to visit the businesses
+        types: list of string of business types
+    """
+    nodes = create_nodes_df(biz_lists, types)
+    edges = create_edges_df(nodes)
+    return {"nodes": nodes, "edges": edges}
