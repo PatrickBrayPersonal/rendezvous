@@ -26,7 +26,7 @@ def test_big():
     Tests the solution on a larger graph to measure performance
     """
     ntypes = 3
-    nbusinesses = 100
+    nbusinesses = 10
     edges, nodes = random_graph(
         ntypes=ntypes,
         nbusinesses=nbusinesses,

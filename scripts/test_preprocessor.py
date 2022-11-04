@@ -111,7 +111,7 @@ def test_preprocess_from_json():
     biz_lists = USER_NODE + file_contents
 
     res = biz_lists_to_node_edge_dfs(biz_lists=biz_lists, types=TYPES)
-    print('complete')
+    
 
 
 if __name__ == "__main__":
