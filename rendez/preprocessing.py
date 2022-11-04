@@ -52,7 +52,7 @@ def create_edges_df(nodes: pd.DataFrame) -> pd.DataFrame:
     ]
 
 
-def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> dict:
+def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> pd.DataFrame:
     """
     generates the edge and node dataframes to be used by the CPSAT Solver
     Args:
@@ -63,4 +63,4 @@ def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> dict:
     """
     nodes = create_nodes_df(biz_lists, types)
     edges = create_edges_df(nodes)
-    return {"nodes": nodes, "edges": edges}
+    return nodes, edges

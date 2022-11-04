@@ -3,6 +3,8 @@ import flatdict
 import pandas as pd
 from haversine import haversine, Unit
 from rendez.preprocessing import biz_lists_to_node_edge_dfs
+from rendez.cpsat_optimizer import optimize
+from test_optimizer import assert_solution_valid
 
 
 def create_business(business, number):  # Maps business data to a dictionary
@@ -91,6 +93,7 @@ def load_json(file):  # Loads Json file
         jsonFile.close()
     return jsonObject
 
+
 def test_preprocess_from_json():
     FILES = [
         "places_movie.json",
@@ -110,8 +113,11 @@ def test_preprocess_from_json():
     file_contents = [load_json(f"test_data/{file}")["results"] for file in FILES]
     biz_lists = USER_NODE + file_contents
 
-    res = biz_lists_to_node_edge_dfs(biz_lists=biz_lists, types=TYPES)
-    
+    nodes, edges = biz_lists_to_node_edge_dfs(biz_lists=biz_lists, types=TYPES)
+    start_nodes = {0}
+    end_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].max()]["id"])
+    soln = optimize(nodes, edges, start_nodes, end_nodes)
+    assert_solution_valid(nodes, edges, soln["edges"], start_nodes, end_nodes)
 
 
 if __name__ == "__main__":

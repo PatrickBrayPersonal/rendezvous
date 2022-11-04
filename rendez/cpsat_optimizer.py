@@ -86,8 +86,18 @@ def optimize(
         == 1
     )
     # Objective
-    edge_loss = sum([sum(edge_obj_vars[obj].values()) * weight for obj, weight in edge_objectives.items()])
-    node_loss = sum([sum(node_obj_vars[obj].values()) * weight for obj, weight in node_objectives.items()])
+    edge_loss = sum(
+        [
+            sum(edge_obj_vars[obj].values()) * weight
+            for obj, weight in edge_objectives.items()
+        ]
+    )
+    node_loss = sum(
+        [
+            sum(node_obj_vars[obj].values()) * weight
+            for obj, weight in node_objectives.items()
+        ]
+    )
     model.Minimize(edge_loss + node_loss)
     # Solve
     solver = cp_model.CpSolver()
