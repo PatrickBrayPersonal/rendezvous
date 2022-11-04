@@ -12,8 +12,8 @@ def optimize(
     edges: pd.DataFrame,
     start_nodes: set,
     end_nodes: set,
-    edge_objectives: set = set(),
-    node_objectives: set = set(),
+    edge_objectives: dict = dict(),
+    node_objectives: dict = dict(),
 ) -> dict:
     """
     Optimize for objectives
@@ -23,8 +23,8 @@ def optimize(
         edges: Dataframe of edges, 'source' and 'destination'
         starting_nodes: set of eligble starting nodes
         ending_nodes: set of eligible ending nodes
-        edge_objectives: set of column names from nodes to minimize when selected
-        node_objectives: set of column names from edges to minimize when selected
+        edge_objectives: dictionary of column names from nodes to minimize when selected, values are weights
+        node_objectives: dictionary of column names from edges to minimize when selected, values are weights
     Return:
         solution dict
         {
@@ -86,9 +86,8 @@ def optimize(
         == 1
     )
     # Objective
-    # TODO: Incorporate weighting
-    edge_loss = sum([sum(var.values()) for var in edge_obj_vars.values()])
-    node_loss = sum([sum(var.values()) for var in node_obj_vars.values()])
+    edge_loss = sum([sum(edge_obj_vars[obj].values()) * weight for obj, weight in edge_objectives.items()])
+    node_loss = sum([sum(node_obj_vars[obj].values()) * weight for obj, weight in node_objectives.items()])
     model.Minimize(edge_loss + node_loss)
     # Solve
     solver = cp_model.CpSolver()
