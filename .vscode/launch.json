@@ -30,5 +30,14 @@
             "console": "integratedTerminal",
             "justMyCode": true
         },
+        {
+            "name": "json_processor",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/places_json_processor.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
     ]
 }
