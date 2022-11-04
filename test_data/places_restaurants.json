@@ -1,0 +1,100 @@
+{
+    "html_attributions" : [],
+    "results" : [
+       {
+          "business_status" : "OPERATIONAL",
+          "geometry" : {
+             "location" : {
+                "lat" : 38.9308063,
+                "lng" : -77.0323363
+             },
+             "viewport" : {
+                "northeast" : {
+                   "lat" : 38.9321625802915,
+                   "lng" : -77.0311881197085
+                },
+                "southwest" : {
+                   "lat" : 38.9294646197085,
+                   "lng" : -77.03388608029151
+                }
+             }
+          },
+          "icon" : "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+          "icon_background_color" : "#13B5C7",
+          "icon_mask_base_uri" : "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+          "name" : "GALA Hispanic Theatre",
+          "opening_hours" : {
+             "open_now" : false
+          },
+          "photos" : [
+             {
+                "height" : 2888,
+                "html_attributions" : [
+                   "\u003ca href=\"https://maps.google.com/maps/contrib/115884736506634551605\"\u003eGALA Hispanic Theatre\u003c/a\u003e"
+                ],
+                "photo_reference" : "AcYSjRjrxXSsi7XMiEZn98hCpoP09FTDk3x1uHVQyIm_C6ZUv7tVh7mwiNG0dJ1UotQL4kmPn3_De2IgU4D1TN4q_FoJkMPEG5akzZ8OE2XXHCexh21OYqhIs8SMCko1anGinx2UkN52eNP8bVrZg7KE8igVRgx1Z0dMZBVFUm233dWWmz_N",
+                "width" : 4333
+             }
+          ],
+          "place_id" : "ChIJteUORR_It4kRVXponJBr4BM",
+          "plus_code" : {
+             "compound_code" : "WXJ9+83 Washington, DC, USA",
+             "global_code" : "87C4WXJ9+83"
+          },
+          "rating" : 4.7,
+          "reference" : "ChIJteUORR_It4kRVXponJBr4BM",
+          "scope" : "GOOGLE",
+          "types" : [ "movie_theater", "point_of_interest", "establishment" ],
+          "user_ratings_total" : 228,
+          "vicinity" : "3333 14th Street Northwest, Washington"
+       },
+       {
+          "business_status" : "OPERATIONAL",
+          "geometry" : {
+             "location" : {
+                "lat" : 38.92897240000001,
+                "lng" : -77.03716319999999
+             },
+             "viewport" : {
+                "northeast" : {
+                   "lat" : 38.9302833802915,
+                   "lng" : -77.03593806970848
+                },
+                "southwest" : {
+                   "lat" : 38.92758541970851,
+                   "lng" : -77.0386360302915
+                }
+             }
+          },
+          "icon" : "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/bar-71.png",
+          "icon_background_color" : "#FF9E67",
+          "icon_mask_base_uri" : "https://maps.gstatic.com/mapfiles/place_api/icons/v2/bar_pinlet",
+          "name" : "Suns Cinema - Theater & Bar",
+          "opening_hours" : {
+             "open_now" : true
+          },
+          "photos" : [
+             {
+                "height" : 1536,
+                "html_attributions" : [
+                   "\u003ca href=\"https://maps.google.com/maps/contrib/109387916259015585923\"\u003eBeau Finley\u003c/a\u003e"
+                ],
+                "photo_reference" : "AcYSjRhMCZwCtPDIaPpoMniRGhHN_oitsoGiwbdZCmAGMd7Fj4JSWEO3oWACpikn2yht6NaCy5xkrvQ2dxb8gdCmQKOXJjHfuAkpyLdTN3IMcJbQDM7WpY8iOQub2xJ7WJBUJB6HJvHA7hxU_eWe6qNBkoW2KvxoPaXqy52WpRg7OW36Eauc",
+                "width" : 2048
+             }
+          ],
+          "place_id" : "ChIJQcMN5SDIt4kRZZq8cQVIjU0",
+          "plus_code" : {
+             "compound_code" : "WXH7+H4 Washington, DC, USA",
+             "global_code" : "87C4WXH7+H4"
+          },
+          "rating" : 4.8,
+          "reference" : "ChIJQcMN5SDIt4kRZZq8cQVIjU0",
+          "scope" : "GOOGLE",
+          "types" : [ "bar", "movie_theater", "point_of_interest", "establishment" ],
+          "user_ratings_total" : 137,
+          "vicinity" : "3107 Mount Pleasant Street Northwest, Washington"
+       }
+    ],
+    "status" : "OK"
+ }
