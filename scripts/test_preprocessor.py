@@ -114,6 +114,9 @@ def test_preprocess_from_json():
     biz_lists = USER_NODE + file_contents
 
     nodes, edges = biz_lists_to_node_edge_dfs(biz_lists=biz_lists, types=TYPES)
+    """
+    TODO: Do Scaling Here
+    """
     start_nodes = {0}
     end_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].max()]["id"])
     soln = optimize(nodes, edges, start_nodes, end_nodes)
