@@ -135,24 +135,35 @@ def load_json(file):  # Loads Json file
         jsonFile.close()
     return jsonObject
 
-
+def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> dict:
+    """
+    generates the edge and node dataframes to be used by the CPSAT Solver
+    Args:
+        biz_lists: list of lists of places api data
+            the inner lists are businesses of the same type
+            the lists are in the order in which you wish to visit the businesses
+        types: list of string of business types
+    """
+    nodes = create_nodes_df(biz_lists, types)
+    edges = create_edges_df(nodes)
+    return {"nodes": nodes, "edges": edges}
 
 if __name__ == "__main__":
-    files = [
+    FILES = [
         "places_movie.json",
         "places_bar.json",
         "places_restaurants.json",
     ]  # test json files
-    types = ["start", "movie", "bar", "restaurant"]
-
-    file_contents = [load_json(f"test_data/{file}")["results"] for file in files]
-    user_node = [
+    TYPES = ["start", "movie", "bar", "restaurant"]
+    USER_NODE = [
         [{"geometry:location:lat": 38.919188013297024, "geometry:location:lng": -77.02494496019774}]
-    ]  # format for nodes list-dict structure and User data
-    biz_lists = user_node + file_contents
+    ]  # the starting location
 
-    og(files)
+    file_contents = [load_json(f"test_data/{file}")["results"] for file in FILES]
+    biz_lists = USER_NODE + file_contents
 
-    nodes = create_nodes_df(biz_lists, types)
-    edges = create_edges_df(nodes)
+    res = biz_lists_to_node_edge_dfs(biz_lists=biz_lists, types=TYPES)
+
+
+
     print('complete')
