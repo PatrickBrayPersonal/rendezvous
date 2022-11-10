@@ -39,5 +39,14 @@
             "console": "integratedTerminal",
             "justMyCode": true
         },
+        {
+            "name": "main",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/test_all.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
     ]
 }

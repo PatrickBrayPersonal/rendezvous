@@ -46,7 +46,5 @@ def test_preprocess_from_json():
     print(selected_nodes)
 
 
-
-
 if __name__ == "__main__":
     test_preprocess_from_json()
