@@ -1,11 +1,9 @@
 import json
-import flatdict
-import pandas as pd
-from haversine import haversine, Unit
 from rendez.preprocessing import biz_lists_to_node_edge_dfs
 from rendez.cpsat_optimizer import optimize
 from test_optimizer import assert_solution_valid
 from rendez.postprocessing import reformat_for_frontend
+from rendez.scaler import Scaler
 
 
 def load_json(file):  # Loads Json file
@@ -30,17 +28,28 @@ def test_preprocess_from_json():
             }
         ]
     ]  # the starting location
+    node_objs = {"price_level": 2}
+    edge_objs = {"distance": 3}
 
     file_contents = [load_json(f"test_data/{file}")["results"] for file in FILES]
     biz_lists = USER_NODE + file_contents
 
     nodes, edges = biz_lists_to_node_edge_dfs(biz_lists=biz_lists, types=TYPES)
-    """
-    TODO: Do Scaling Here
-    """
+
+    scaler = Scaler()
+    nodes, node_objs = scaler.scale(nodes, node_objs)
+    edges, edge_objs = scaler.scale(edges, edge_objs)
+
     start_nodes = {0}
     end_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].max()]["id"])
-    soln = optimize(nodes, edges, start_nodes, end_nodes)
+    soln = optimize(
+        nodes,
+        edges,
+        start_nodes,
+        end_nodes,
+        node_objectives=node_objs,
+        edge_objectives=edge_objs,
+    )
     assert_solution_valid(nodes, edges, soln["edges"], start_nodes, end_nodes)
     selected_nodes = reformat_for_frontend(soln, nodes, edges)
     print(selected_nodes)
