@@ -163,7 +163,7 @@ def add_edge_objective_vars(
     """
     for edge_obj in edge_objectives:
         name = str(row["source"]) + "_" + str(row["destination"]) + "_" + edge_obj
-        new_constant = model.NewConstant(row[edge_obj])
+        new_constant = model.NewConstant(int(row[edge_obj]))
         new_var = model.NewIntVar(-10000, 10000, name)
         edge_obj_vars[edge_obj][row["source"], row["destination"]] = new_var
         model.AddMultiplicationEquality(

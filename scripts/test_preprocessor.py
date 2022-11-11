@@ -119,12 +119,21 @@ def test_preprocess_from_json():
     TODO: Do Scaling Here
     """
     node_objs = {"price_level": 2}
+    edge_objs = {"distance": 3}
     scaler = Scaler()
     nodes, node_objs = scaler.scale(nodes, node_objs)
+    edges, edge_objs = scaler.scale(edges, edge_objs)
 
     start_nodes = {0}
     end_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].max()]["id"])
-    soln = optimize(nodes, edges, start_nodes, end_nodes, node_objectives=node_objs)
+    soln = optimize(
+        nodes,
+        edges,
+        start_nodes,
+        end_nodes,
+        node_objectives=node_objs,
+        edge_objectives=edge_objs,
+    )
     assert_solution_valid(nodes, edges, soln["edges"], start_nodes, end_nodes)
 
 
