@@ -20,7 +20,12 @@ def test_main():
 
     file_contents = [load_json(f"test_data/{file}")["results"] for file in FILES]
     biz_lists = USER_NODE + file_contents
-    run(biz_lists=biz_lists, type_list=TYPES, edge_objectives={}, node_objectives={})
+    run(
+        biz_lists=biz_lists,
+        type_list=TYPES,
+        edge_objectives={"distance": 1},
+        node_objectives={"price_level": 2},
+    )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 from rendez.preprocessing import biz_lists_to_node_edge_dfs
 from rendez.cpsat_optimizer import optimize
 from rendez.postprocessing import reformat_for_frontend
+from rendez.scaler import Scaler
 
 
 def run(
@@ -20,10 +21,10 @@ def run(
 
     """
     nodes, edges = biz_lists_to_node_edge_dfs(biz_lists, type_list)
-    """
-    TODO: Do Scaling Here
-    """
-    start_nodes = {0}
+    scaler = Scaler()
+    nodes, node_objectives = scaler.scale(nodes, node_objectives)
+    edges, edge_objectives = scaler.scale(edges, edge_objectives)
+    start_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].min()]["id"])
     end_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].max()]["id"])
     soln = optimize(
         nodes, edges, start_nodes, end_nodes, edge_objectives, node_objectives
