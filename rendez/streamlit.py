@@ -125,7 +125,7 @@ if 'locations' not in st.session_state:
     
 
 def locate():
-    placesapikey = 'AIzaSyCh-ua0CMp--x-f23ADnfba9-JdqZMbIgw'
+    placesapikey = 'API_KEY_HERE'
     
     types = [st.session_state.type1, st.session_state.type2, st.session_state.type3]
     
