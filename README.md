@@ -11,6 +11,12 @@ DVA Project
 - Install local rendez package
     - `pip install -e .`
 
+## Environment Variables
+add a file called ".env" to the `rendezvous` directory
+add a single line to the file
+API_KEY = <GOOGLE PLACES API KEY>
+This will be the places api key used by the program
+
 ## Optimizer
 Passing data into the optimizer
 

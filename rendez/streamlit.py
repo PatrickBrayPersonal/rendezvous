@@ -7,6 +7,10 @@ import folium
 from streamlit_folium import st_folium
 import requests
 from main import run
+from dotenv import find_dotenv, load_dotenv
+import os
+
+load_dotenv(find_dotenv())
 
 # initialize important lists
 places = ["Restaurant", "Bar", "Night Club", "Movie Theater", "Gallery"]
@@ -125,7 +129,7 @@ if 'locations' not in st.session_state:
     
 
 def locate():
-    placesapikey = 'API_KEY_HERE'
+    placesapikey = os.getenv("API_KEY")
     
     types = [st.session_state.type1, st.session_state.type2, st.session_state.type3]
     
