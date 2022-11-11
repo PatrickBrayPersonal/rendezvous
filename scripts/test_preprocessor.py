@@ -5,6 +5,7 @@ from haversine import haversine, Unit
 from rendez.preprocessing import biz_lists_to_node_edge_dfs
 from rendez.cpsat_optimizer import optimize
 from test_optimizer import assert_solution_valid
+from rendez.scaler import Scaler
 
 
 def create_business(business, number):  # Maps business data to a dictionary
@@ -117,9 +118,13 @@ def test_preprocess_from_json():
     """
     TODO: Do Scaling Here
     """
+    node_objs = {"price_level": 2}
+    scaler = Scaler()
+    nodes, node_objs = scaler.scale(nodes, node_objs)
+
     start_nodes = {0}
     end_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].max()]["id"])
-    soln = optimize(nodes, edges, start_nodes, end_nodes)
+    soln = optimize(nodes, edges, start_nodes, end_nodes, node_objectives=node_objs)
     assert_solution_valid(nodes, edges, soln["edges"], start_nodes, end_nodes)
 
 
