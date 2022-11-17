@@ -81,3 +81,20 @@ def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> pd.DataFrame:
     nodes = create_nodes_df(biz_lists, types)
     edges = create_edges_df(nodes)
     return nodes, edges
+
+
+def validate_inputs(biz_lists, types):
+    missing_types = []
+    n_types = []
+    n_biz_lists = []
+    for b, t in zip(biz_lists, types):
+        if len(b) == 0:
+            missing_types.append(t)
+        else:
+            n_types.append(t)
+            n_biz_lists.append(b)
+    if len(missing_types) > 0:
+        message = f"{', '.join(missing_types)} not found in the area"
+    else:
+        message = "Optimization successful!"
+    return n_biz_lists, n_types, message

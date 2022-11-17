@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "most_recent",
+            "type": "python",
+            "request": "launch",
+            "program": "rendez/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
@@ -40,7 +48,7 @@
             "justMyCode": true
         },
         {
-            "name": "main",
+            "name": "test_all",
             "type": "python",
             "request": "launch",
             "program": "scripts/test_all.py",

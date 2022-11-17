@@ -64,7 +64,6 @@ st.subheader("Your Night Out")
 ##Alternate Routes/Options
 
 st.subheader("Need Some Help?")
-
 # chart_data = pd.DataFrame(np.random.randn(3, 3), columns=["a", "b", "c"])
 
 # st.bar_chart(chart_data)
@@ -221,14 +220,13 @@ def plan_night_out(): #callback function of Submit button. Pulls down places fro
     ]  # the starting location in the format that the optimizer wants
 
     biz_lists = USER_NODE + file_contents
-    placesdf = run(
+    placesdf, message = run(
         biz_lists=biz_lists,
         type_list=TYPES,
         priority_1=priority_1,
         priority_2=priority_2,
         p_df=priorities,
     )
-
     for i in range(len(placesdf.index) - 1):
         place = placesdf.iloc[i + 1]
 
