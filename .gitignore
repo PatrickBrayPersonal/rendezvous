@@ -130,3 +130,6 @@ dmypy.json
 
 # mlflow
 mlruns/
+
+# custom
+test_data/pickles/
