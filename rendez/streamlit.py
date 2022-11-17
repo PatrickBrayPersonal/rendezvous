@@ -93,7 +93,7 @@ def find_starting_address(): #find user supplied starting address and display it
 
     result = response.json()['candidates'][0]
     
-    locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name']})
+    locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start"})
         
     st.session_state.locations = locations    
     st.session_state.start = locations[0]['coords']
@@ -162,14 +162,13 @@ priority_2 = st.sidebar.selectbox(
     index=1,
 )
 
-
 ##MAP TESTING####
 
 if "locations" not in st.session_state: #default to displaying Washington DC
     lat = '38.902260'
     lng = '-77.035256'
     st.session_state.start = [float(lat),float(lng)]
-    st.session_state.locations = [{'coords':[float(lat),float(lng)], 'pop_name':'Washington DC', 'tip_name':'Washington DC'}]
+    st.session_state.locations = [{'coords':[float(lat),float(lng)], 'pop_name':'Washington DC', 'tip_name':'Washington DC', 'tip_type': "City"}]
 
 
 def plan_night_out(): #callback function of Submit button. Pulls down places from API and passes to optimizer and updates st.session_state.location with results
@@ -238,6 +237,7 @@ def plan_night_out(): #callback function of Submit button. Pulls down places fro
                 ],
                 "pop_name": place["name"],
                 "tip_name": place["name"],
+                "tip_type": place["type"]
             }
         )
 
@@ -251,11 +251,10 @@ m = folium.Map(location=st.session_state.start, zoom_start=14)
 
 for location in st.session_state.locations:
     folium.Marker(
-        location["coords"], popup=location["pop_name"], tooltip=location["tip_name"]
+        location["coords"], popup=location["pop_name"], tooltip=f"{location['tip_name']}, {location['tip_type']}"
     ).add_to(m)
 
 st_data = st_folium(m, width=725) # call to render Folium map in Streamlit
-
 
 #graveyard of the cities viewer, in case we want it back as a visual
 
