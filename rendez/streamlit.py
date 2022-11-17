@@ -13,22 +13,31 @@ import os
 load_dotenv(find_dotenv())
 
 # initialize important lists
-places = ["Restaurant", "Bar", "Night Club", "Movie Theater", "Gallery"]
+places = ["Restaurant","Amusement Park","Aquarium","Art Gallery","Bakery","Bar","Book Store","Bowling Alley","Cafe","Casino","Department Store","Library","Movie Theater",
+          "Museum","Night Club","Park","Shopping Mall","Tourist Attraction","Zoo"]
 key_to_id = {
-    "Restaurant": "restaurant",
+    "Amusement Park": "amusement_park",
+    "Aquarium": "aquarium",
+    "Art Gallery": "art_gallery",
+    "Bakery": "bakery",
     "Bar": "bar",
-    "Night Club": "night_club",
+    "Book Store": "book_store",
+    "Bowling Alley": "bowling_alley",
+    "Cafe": "cafe",
+    "Casino": "casino",
+    "Department Store": "department_store",
+    "Library": "library",
     "Movie Theater": "movie_theater",
-    "Gallery": "art_gallery",
+    "Museum": "museum",
+    "Night Club": "night_club",
+    "Park": "park",
+    "Restaurant": "restaurant",
+    "Shopping Mall": "shopping_mall",
+    "Tourist Attraction": "tourist_attraction",
+    "Zoo": "zoo"
 }
-cities = ["Washington DC", "Chicago", "New York City", "Los Angeles", "Atlanta"]
-city_features = {
-    "Washington DC": {"lat": "38.902260", "lng": "-77.035256", "radius": "7500"},
-    "Chicago": {"lat": "41.852831", "lng": "-87.630385", "radius": "14000"},
-    "New York City": {"lat": "40.654447", "lng": "-73.957754", "radius": "20000"},
-    "Los Angeles": {"lat": "34.080467", "lng": "-118.297799", "radius": "20000"},
-    "Atlanta": {"lat": "33.764209", "lng": "-84.430916", "radius": "10000"},
-}
+
+radius = '20000' #radius around which to pull down places, in kilometers. Make adjustable?
 
 ##dummy dataframe for testing
 df = pd.DataFrame({"first column": [1, 2, 3, 4], "second column": [10, 20, 30, 40]})
@@ -56,9 +65,9 @@ st.subheader("Your Night Out")
 
 st.subheader("Need Some Help?")
 
-chart_data = pd.DataFrame(np.random.randn(3, 3), columns=["a", "b", "c"])
+# chart_data = pd.DataFrame(np.random.randn(3, 3), columns=["a", "b", "c"])
 
-st.bar_chart(chart_data)
+# st.bar_chart(chart_data)
 
 
 # =================SIDEBAR=======================
@@ -66,29 +75,32 @@ st.sidebar.subheader("Select Your Route Options")
 
 ##Destination Types Select List and Logic
 
-citiesdf = pd.DataFrame({"options": cities})
 
 
-def update_city():
-    lat = city_features[st.session_state.city]["lat"]
-    lng = city_features[st.session_state.city]["lng"]
-    st.session_state.start = [float(lat), float(lng)]
-    st.session_state.locations = [
-        {
-            "coords": [float(lat), float(lng)],
-            "pop_name": st.session_state.city,
-            "tip_name": st.session_state.city,
-        }
-    ]
+starting_point = st.sidebar.text_input('What address would you like to start from?', key='address')
 
+def find_starting_address(): #find user supplied starting address and display it on map, also setting it up to be the first node in the optimizer
+    
+    placesapikey = os.getenv("API_KEY")
+    
+    locations = []
+    
+    url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + st.session_state.address.replace(" ", "%2C" ) + "&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&key=" + placesapikey
 
-destination_city = st.sidebar.selectbox(
-    "Which city are you going to",
-    citiesdf["options"],
-    key="city",
-    on_change=update_city,
-)
+    payload={}
+    headers = {}
 
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    result = response.json()['candidates'][0]
+    
+    locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name']})
+        
+    st.session_state.locations = locations    
+    st.session_state.start = locations[0]['coords']
+    
+
+address = st.sidebar.button('Find Address', on_click=find_starting_address)
 
 destinations = pd.DataFrame({"options": places})
 
@@ -154,29 +166,22 @@ priority_2 = st.sidebar.selectbox(
 
 ##MAP TESTING####
 
-if "locations" not in st.session_state:
-    lat = city_features[st.session_state.city]["lat"]
-    lng = city_features[st.session_state.city]["lng"]
-    st.session_state.start = [float(lat), float(lng)]
-    st.session_state.locations = [
-        {
-            "coords": [float(lat), float(lng)],
-            "pop_name": st.session_state.city,
-            "tip_name": st.session_state.city,
-        }
-    ]
+if "locations" not in st.session_state: #default to displaying Washington DC
+    lat = '38.902260'
+    lng = '-77.035256'
+    st.session_state.start = [float(lat),float(lng)]
+    st.session_state.locations = [{'coords':[float(lat),float(lng)], 'pop_name':'Washington DC', 'tip_name':'Washington DC'}]
 
 
-def locate():
+def plan_night_out(): #callback function of Submit button. Pulls down places from API and passes to optimizer and updates st.session_state.location with results
     placesapikey = os.getenv("API_KEY")
 
     types = [st.session_state.type1, st.session_state.type2, st.session_state.type3]
 
-    lat = city_features[st.session_state.city]["lat"]
-    lng = city_features[st.session_state.city]["lng"]
-    radius = city_features[st.session_state.city]["radius"]
+    lat = str(st.session_state.locations[0]['coords'][0])
+    lng = str(st.session_state.locations[0]['coords'][1])
 
-    locations = []
+    locations = st.session_state.locations
 
     file_contents = []
     TYPES = ["Start"]
@@ -208,12 +213,12 @@ def locate():
     USER_NODE = [
         [
             {
-                "geometry:location:lat": 38.919188013297024,
-                "geometry:location:lng": -77.02494496019774,
-                "name": "Start",
+                "geometry:location:lat": st.session_state.locations[0]['coords'][0],
+                "geometry:location:lng": st.session_state.locations[0]['coords'][1],
+                "name": st.session_state.locations[0]['pop_name']
             }
         ]
-    ]  # the starting location
+    ]  # the starting location in the format that the optimizer wants
 
     biz_lists = USER_NODE + file_contents
     placesdf = run(
@@ -223,17 +228,6 @@ def locate():
         priority_2=priority_2,
         p_df=priorities,
     )
-    print(placesdf)
-    locations = [
-        {
-            "coords": [
-                USER_NODE[0][0]["geometry:location:lat"],
-                USER_NODE[0][0]["geometry:location:lng"],
-            ],
-            "pop_name": USER_NODE[0][0]["name"],
-            "tip_name": USER_NODE[0][0]["name"],
-        }
-    ]
 
     for i in range(len(placesdf.index) - 1):
         place = placesdf.iloc[i + 1]
@@ -253,7 +247,7 @@ def locate():
     st.session_state.start = locations[0]["coords"]
 
 
-submit = st.sidebar.button("Submit", on_click=locate)
+submit = st.sidebar.button("Submit", on_click=plan_night_out)
 
 m = folium.Map(location=st.session_state.start, zoom_start=14)
 
@@ -262,9 +256,43 @@ for location in st.session_state.locations:
         location["coords"], popup=location["pop_name"], tooltip=location["tip_name"]
     ).add_to(m)
 
-st_data = st_folium(m, width=725)
+st_data = st_folium(m, width=725) # call to render Folium map in Streamlit
 
-# call to render Folium map in Streamlit
+
+#graveyard of the cities viewer, in case we want it back as a visual
+
+# cities = ["Washington DC", "Chicago", "New York City", "Los Angeles", "Atlanta"]
+# city_features = {
+#     "Washington DC": {"lat": "38.902260", "lng": "-77.035256", "radius": "7500"},
+#     "Chicago": {"lat": "41.852831", "lng": "-87.630385", "radius": "14000"},
+#     "New York City": {"lat": "40.654447", "lng": "-73.957754", "radius": "20000"},
+#     "Los Angeles": {"lat": "34.080467", "lng": "-118.297799", "radius": "20000"},
+#     "Atlanta": {"lat": "33.764209", "lng": "-84.430916", "radius": "10000"},
+# }
+
+# citiesdf = pd.DataFrame({"options": cities})
+
+
+# def update_city():
+#     lat = city_features[st.session_state.city]["lat"]
+#     lng = city_features[st.session_state.city]["lng"]
+#     st.session_state.start = [float(lat), float(lng)]
+#     st.session_state.locations = [
+#         {
+#             "coords": [float(lat), float(lng)],
+#             "pop_name": st.session_state.city,
+#             "tip_name": st.session_state.city,
+#         }
+#     ]
+
+
+# destination_city = st.sidebar.selectbox(
+#     "Which city are you going to",
+#     citiesdf["options"],
+#     key="city",
+#     on_change=update_city,
+# )
+
 
 
 ###TO DO's
