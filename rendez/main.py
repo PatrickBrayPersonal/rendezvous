@@ -1,14 +1,17 @@
-from rendez.preprocessing import biz_lists_to_node_edge_dfs
+from rendez.preprocessing import biz_lists_to_node_edge_dfs, priorities_to_objectives
 from rendez.cpsat_optimizer import optimize
 from rendez.postprocessing import reformat_for_frontend
 from rendez.scaler import Scaler
+
+import pandas as pd
 
 
 def run(
     biz_lists: list,
     type_list: list,
-    edge_objectives: dict = dict(),
-    node_objectives: dict = dict(),
+    priority_1: str,
+    priority_2: str,
+    p_df: pd.DataFrame,
 ):
     """
     Args:
@@ -16,18 +19,16 @@ def run(
             the inner lists are businesses of the same type
             the lists are in the order in which you wish to visit the businesses
         type_list: list of string of business types
-        edge_objectives: dictionary of column names from nodes to minimize when selected, values are weights
-        node_objectives: dictionary of column names from edges to minimize when selected, values are weights
 
     """
+    edge_obj, node_obj = priorities_to_objectives(priority_1, priority_2, p_df)
     nodes, edges = biz_lists_to_node_edge_dfs(biz_lists, type_list)
     scaler = Scaler()
-    nodes, node_objectives = scaler.scale(nodes, node_objectives)
-    edges, edge_objectives = scaler.scale(edges, edge_objectives)
+    nodes, node_obj = scaler.scale(nodes, node_obj)
+    edges, edge_obj = scaler.scale(edges, edge_obj)
     start_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].min()]["id"])
     end_nodes = set(nodes[nodes["type_order"] == nodes["type_order"].max()]["id"])
-    soln = optimize(
-        nodes, edges, start_nodes, end_nodes, edge_objectives, node_objectives
-    )
+    soln = optimize(nodes, edges, start_nodes, end_nodes, edge_obj, node_obj)
+    print(soln)
     selected_nodes = reformat_for_frontend(soln, nodes, edges)
     return selected_nodes

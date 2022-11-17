@@ -106,7 +106,8 @@ def optimize(
         print("Model sucessful")
         return get_soln_dict(solver, edge_vars)
     else:
-        print(f"Model failed with error code {status}")
+        status_codes = ["UNKOWN", "OPTIMAL", "FEASIBLE", "INFEASIBLE", "MODEL_INVALID"]
+        print(f"Model failed with error code {status_codes[status]}")
         return None
 
 
@@ -145,7 +146,7 @@ def add_node_objective_vars(
     for node_obj in node_objectives:
         name = f"{row['id']}_{node_obj}"
         new_constant = model.NewConstant(row[node_obj])
-        new_var = model.NewIntVar(-10000, 10000, name)
+        new_var = model.NewIntVar(-100000000, 100000000, name)
         node_obj_vars[node_obj][row["id"]] = new_var
         model.AddMultiplicationEquality(new_var, [node_var, new_constant])
 
@@ -164,7 +165,7 @@ def add_edge_objective_vars(
     for edge_obj in edge_objectives:
         name = str(row["source"]) + "_" + str(row["destination"]) + "_" + edge_obj
         new_constant = model.NewConstant(int(row[edge_obj]))
-        new_var = model.NewIntVar(-10000, 10000, name)
+        new_var = model.NewIntVar(-100000000, 100000000, name)
         edge_obj_vars[edge_obj][row["source"], row["destination"]] = new_var
         model.AddMultiplicationEquality(
             new_var, [edge_vars[row["source"], row["destination"]], new_constant]

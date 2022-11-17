@@ -1,5 +1,6 @@
 from rendez.main import run
 from test_preprocessor import load_json
+import pandas as pd
 
 
 def test_main():
@@ -20,11 +21,28 @@ def test_main():
 
     file_contents = [load_json(f"test_data/{file}")["results"] for file in FILES]
     biz_lists = USER_NODE + file_contents
+    priorities = pd.DataFrame(
+        {
+            "options": [
+                "Highly Reputable",
+                "Great Location",
+                "Unbeatable Price",
+                "Luxury Experience",
+            ],
+            "objective": [
+                ["-rating", "-user_ratings_total"],
+                ["distance"],
+                ["-price_level"],
+                ["-rating", "price_level"],
+            ],
+        }
+    )
     run(
         biz_lists=biz_lists,
         type_list=TYPES,
-        edge_objectives={"distance": 1},
-        node_objectives={"price_level": 2},
+        p_df=priorities,
+        priority_1="Highly Reputable",
+        priority_2="Great Location",
     )
 
 

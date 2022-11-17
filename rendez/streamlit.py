@@ -112,7 +112,15 @@ destination_types3 = st.sidebar.selectbox(
 # 3. Unbeatable Price = Higher weight towards pricing
 # 4. Luxury Experience = Higher weight towards destinations that are expensive and High Rating
 # note if Luxury Experience AND Unbeatable Price are selected they just cancel out and focus on High Rating
-
+# * List of available node attributes * #
+# ['geometry:location:lat', 'geometry:location:lng', 'type', 'type_order',
+#        'business_status', 'geometry:viewport:northeast:lat',
+#        'geometry:viewport:northeast:lng', 'geometry:viewport:southwest:lat',
+#        'geometry:viewport:southwest:lng', 'icon', 'icon_background_color',
+#        'icon_mask_base_uri', 'name', 'opening_hours:open_now', 'photos',
+#        'place_id', 'plus_code:compound_code', 'plus_code:global_code',
+#        'rating', 'reference', 'scope', 'types', 'user_ratings_total',
+#        'vicinity', 'price_level', 'id']
 priorities = pd.DataFrame(
     {
         "options": [
@@ -120,23 +128,26 @@ priorities = pd.DataFrame(
             "Great Location",
             "Unbeatable Price",
             "Luxury Experience",
-        ]
+        ],
+        "objective": [
+            ["-rating", "-user_ratings_total"],
+            ["distance"],
+            ["-price_level"],
+            ["-rating", "price_level"],
+        ],
     }
 )
-
 ##Initialize a value for priority_2 since its referenced in the variable priority_1 before assignment
 priority_2 = "Great Location"
-
-
 priority_1 = st.sidebar.selectbox(
     "What's most important for tonight?",
-    priorities[priorities["options"] != priority_2],
+    priorities["options"],
     index=0,
 )
 
 priority_2 = st.sidebar.selectbox(
     "What else matters to you?",
-    priorities[priorities["options"] != priority_1],
+    priorities["options"],
     index=1,
 )
 
@@ -206,9 +217,13 @@ def locate():
 
     biz_lists = USER_NODE + file_contents
     placesdf = run(
-        biz_lists=biz_lists, type_list=TYPES, edge_objectives={}, node_objectives={}
+        biz_lists=biz_lists,
+        type_list=TYPES,
+        priority_1=priority_1,
+        priority_2=priority_2,
+        p_df=priorities,
     )
-
+    print(placesdf)
     locations = [
         {
             "coords": [

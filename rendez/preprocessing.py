@@ -4,6 +4,23 @@ import pandas as pd
 from haversine import haversine, Unit
 
 
+def priorities_to_objectives(priority_1, priority_2, p_df):
+    p1_list = p_df[p_df["options"] == priority_1]["objective"].iloc[0]
+    p2_list = p_df[p_df["options"] == priority_2]["objective"].iloc[0]
+
+    objs = {p: 1 for p in p2_list if p[0] != "-"}
+    objs.update({p[1:]: -1 for p in p2_list if p[0] == "-"})
+    objs.update({p: 2 for p in p1_list if p[0] != "-"})
+    objs.update({p[1:]: -2 for p in p1_list if p[0] == "-"})
+
+    edge_obj = {"distance": 0}  # distance as a tiebreak
+    if "distance" in objs:  # RN distance is the only edge objective
+        edge_obj["distance"] = objs["distance"]
+        del objs["distance"]
+    print(edge_obj, objs)
+    return edge_obj, objs
+
+
 def create_type_df(biz_list: list, type_: str, type_order: int) -> pd.DataFrame:
     """
     Uses a businesses dictionary to create a dataframe that is usable by the optimizer
