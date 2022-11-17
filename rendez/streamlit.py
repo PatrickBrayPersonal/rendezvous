@@ -132,8 +132,8 @@ priorities = pd.DataFrame(
         "objective": [
             ["-rating", "-user_ratings_total"],
             ["distance"],
-            ["-price_level"],
-            ["-rating", "price_level"],
+            ["price_level"],
+            ["-rating", "-price_level"],
         ],
     }
 )
