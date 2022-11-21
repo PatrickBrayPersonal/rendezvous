@@ -78,7 +78,7 @@ starting_point = st.sidebar.text_input('What address would you like to start fro
 def find_starting_address(): #find user supplied starting address and display it on map, also setting it up to be the first node in the optimizer
     
     placesapikey = os.getenv("API_KEY")
-    
+    print(placesapikey)
     locations = []
     
     url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + st.session_state.address.replace(" ", "%2C" ) + "&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&key=" + placesapikey
@@ -87,7 +87,7 @@ def find_starting_address(): #find user supplied starting address and display it
     headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload)
-
+    print(response)
     result = response.json()['candidates'][0]
     
     locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start"})
