@@ -77,8 +77,7 @@ starting_point = st.sidebar.text_input('What address would you like to start fro
 
 def find_starting_address(): #find user supplied starting address and display it on map, also setting it up to be the first node in the optimizer
     
-    placesapikey = os.getenv("API_KEY")
-    print(placesapikey)
+    placesapikey = st.secrets["API_KEY"]
     locations = []
     
     url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + st.session_state.address.replace(" ", "%2C" ) + "&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&key=" + placesapikey
@@ -87,7 +86,6 @@ def find_starting_address(): #find user supplied starting address and display it
     headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload)
-    print(response)
     result = response.json()['candidates'][0]
     
     locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start"})
@@ -169,7 +167,7 @@ if "locations" not in st.session_state: #default to displaying Washington DC
 
 
 def plan_night_out(): #callback function of Submit button. Pulls down places from API and passes to optimizer and updates st.session_state.location with results
-    placesapikey = os.getenv("API_KEY")
+    placesapikey = st.secrets["API_KEY"]
 
     types = [st.session_state.type1, st.session_state.type2, st.session_state.type3]
 
