@@ -86,6 +86,10 @@ def find_starting_address(): #find user supplied starting address and display it
     headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload)
+    if response.status_code == 200 or len(response.json()['candidates']) == 0:
+        st.error(f"API Key Failed {response.status_code}")
+    st.error(f"API Key {response.status_code}")
+
     result = response.json()['candidates'][0]
     
     locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start"})
