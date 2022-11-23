@@ -12,10 +12,11 @@ DVA Project
     - `pip install -e .`
 
 ## Environment Variables
-add a file called "secrets.toml" to the `rendezvous` directory
+add a file called "secrets.toml" to the `.streamlit` directory under `rendezvous`
 add a single line to the file
 API_KEY = <GOOGLE PLACES API KEY>
 This will be the places api key used by the program
+[Streamlit Secrets](https://docs.streamlit.io/streamlit-cloud/get-started/deploy-an-app/connect-to-data-sources/secrets-management)
 
 ## Optimizer
 Passing data into the optimizer
