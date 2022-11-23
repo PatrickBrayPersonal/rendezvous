@@ -86,16 +86,17 @@ def find_starting_address(): #find user supplied starting address and display it
     headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload)
-    if response.status_code == 200 or len(response.json()['candidates']) == 0:
+    if response.status_code != 200:
         st.error(f"API Key Failed {response.status_code}")
-    st.error(f"API Key {response.status_code}")
-
-    result = response.json()['candidates'][0]
-    
-    locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start"})
+    elif len(response.json()['candidates']) == 0:
+        st.error(f"No results found for {st.session_state.address}")
+    else:
+        result = response.json()['candidates'][0]
         
-    st.session_state.locations = locations    
-    st.session_state.start = locations[0]['coords']
+        locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start"})
+            
+        st.session_state.locations = locations    
+        st.session_state.start = locations[0]['coords']
     
 
 address = st.sidebar.button('Find Address', on_click=find_starting_address)
