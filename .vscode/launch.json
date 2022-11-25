@@ -10,7 +10,8 @@
             "request": "launch",
             "program": "rendez/main.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {"PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT": "2"}
         },
         {
             "name": "Python: Current File",
@@ -45,7 +46,8 @@
             "program": "scripts/test_preprocessor.py",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {"PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT": "2"}
         },
         {
             "name": "test_all",

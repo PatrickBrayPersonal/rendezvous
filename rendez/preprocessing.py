@@ -63,10 +63,14 @@ def create_edges_df(nodes: pd.DataFrame) -> pd.DataFrame:
             df.loc[:, "destination"] = df["id"]
             source_coord = (row["geometry:location:lat"], row["geometry:location:lng"])
             df.loc[:, "distance"] = df.apply(apply_distance, axis=1)
+            df = remove_business_repeats(df, row)
             edges.append(df)
-    return pd.concat(edges).reset_index(drop=True)[
-        ["source", "destination", "distance"]
-    ]
+    df = pd.concat(edges).reset_index(drop=True)
+    return df[["source", "destination", "distance"]]
+
+
+def remove_business_repeats(df, row):
+    return df[df["name"] != row["name"]]
 
 
 def biz_lists_to_node_edge_dfs(biz_lists: list, types: list) -> pd.DataFrame:
