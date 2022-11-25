@@ -179,7 +179,7 @@ def plan_night_out(): #callback function of Submit button. Pulls down places fro
     lat = str(st.session_state.locations[0]['coords'][0])
     lng = str(st.session_state.locations[0]['coords'][1])
 
-    locations = st.session_state.locations
+    locations = [st.session_state.locations[0]]
 
     file_contents = []
     TYPES = ["Start"]
