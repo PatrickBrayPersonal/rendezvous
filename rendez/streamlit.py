@@ -6,6 +6,7 @@ import requests
 from main import run
 from dotenv import find_dotenv, load_dotenv
 import os
+import statistics as stat
 
 load_dotenv(find_dotenv())
 
@@ -51,19 +52,42 @@ st.markdown(
 
 st.subheader("Your Night Out")
 
+if "locations" not in st.session_state: #default to displaying Washington DC
+    lat = '38.902260'
+    lng = '-77.035256'
+    st.session_state.start = [float(lat),float(lng)]
+    st.session_state.locations = [{'coords':[float(lat),float(lng)], 'pop_name':'Washington DC', 'tip_name':'Washington DC', 'tip_type': "City",
+                "total_ratings": 0,
+                "rating": 0,
+                "price_level" : 0.0 }]
 
-# m = leafmap.Map(center=[40, -100], zoom=3)
-# lines = 'https://raw.githubusercontent.com/giswqs/leafmap/master/examples/data/cable_geo.geojson'
-# m.add_geojson(lines, layer_name="Cable lines")
-# m.to_streamlit(height=700)
+##calc metrics
+st.session_state.metrics = {"avg_price": 0, "reputation": 0, "avg_number_reviews": 0  }
 
-# st.subheader("Link to [View on Google Maps]")
-##Alternate Routes/Options
+prices = []
+reviews = []
+ratings = []
 
-st.subheader("Need Some Help?")
-# chart_data = pd.DataFrame(np.random.randn(3, 3), columns=["a", "b", "c"])
+for spot in st.session_state.locations:
+    
+    if spot['price_level'] >= 0:
+        prices.append(spot['price_level'])
+    if spot['total_ratings'] >= 0:    
+        reviews.append(spot['total_ratings'])
+    if spot['rating'] >= 0:
+        ratings.append(spot['rating'])
 
-# st.bar_chart(chart_data)
+st.session_state.metrics = {"avg_price": stat.mean(prices), "reputation": stat.mean(ratings), "avg_number_reviews": stat.mean(reviews)  }
+
+#display metrics
+m1, m2, m3 = st.columns(3)
+
+m1.markdown(":money_with_wings: **Price Level**")
+m1.write(round(st.session_state.metrics['avg_price'],2))
+m2.markdown(":star: **Star Rating**")
+m2.write(round(st.session_state.metrics['reputation'],2))
+m3.markdown(":mega: **Average # Of Reviews**")
+m3.write(round(st.session_state.metrics['avg_number_reviews'],2))
 
 
 # =================SIDEBAR=======================
@@ -93,7 +117,9 @@ def find_starting_address(): #find user supplied starting address and display it
     else:
         result = response.json()['candidates'][0]
         
-        locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start"})
+        locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start", "total_ratings": 0,
+                "rating": 0,
+                "price_level" : 0.0 })
             
         st.session_state.locations = locations    
         st.session_state.start = locations[0]['coords']
@@ -164,12 +190,6 @@ priority_2 = st.sidebar.selectbox(
 
 ##MAP TESTING####
 
-if "locations" not in st.session_state: #default to displaying Washington DC
-    lat = '38.902260'
-    lng = '-77.035256'
-    st.session_state.start = [float(lat),float(lng)]
-    st.session_state.locations = [{'coords':[float(lat),float(lng)], 'pop_name':'Washington DC', 'tip_name':'Washington DC', 'tip_type': "City"}]
-
 
 def plan_night_out(): #callback function of Submit button. Pulls down places from API and passes to optimizer and updates st.session_state.location with results
     placesapikey = st.secrets["API_KEY"]
@@ -237,12 +257,16 @@ def plan_night_out(): #callback function of Submit button. Pulls down places fro
                 ],
                 "pop_name": place["name"],
                 "tip_name": place["name"],
-                "tip_type": place["type"]
+                "tip_type": place["type"],
+                "total_ratings": place["user_ratings_total"],
+                "rating": place["rating"],
+                "price_level" : float(place["price_level"])
             }
         )
 
     st.session_state.locations = locations
     st.session_state.start = locations[0]["coords"]
+    
 
 
 submit = st.sidebar.button("Submit", on_click=plan_night_out)
@@ -255,6 +279,9 @@ for location in st.session_state.locations:
     ).add_to(m)
 
 st_data = st_folium(m, width=725) # call to render Folium map in Streamlit
+
+
+st.subheader("Need Some Help?")
 
 #graveyard of the cities viewer, in case we want it back as a visual
 
@@ -289,10 +316,3 @@ st_data = st_folium(m, width=725) # call to render Folium map in Streamlit
 #     key="city",
 #     on_change=update_city,
 # )
-
-
-
-###TO DO's
-##Can we spot a city center?
-##Can we fixed sequence
-##input three types plot first 3 results on the map
