@@ -280,39 +280,3 @@ for location in st.session_state.locations:
 
 st_data = st_folium(m, width=725) # call to render Folium map in Streamlit
 
-
-st.subheader("Need Some Help?")
-
-#graveyard of the cities viewer, in case we want it back as a visual
-
-# cities = ["Washington DC", "Chicago", "New York City", "Los Angeles", "Atlanta"]
-# city_features = {
-#     "Washington DC": {"lat": "38.902260", "lng": "-77.035256", "radius": "7500"},
-#     "Chicago": {"lat": "41.852831", "lng": "-87.630385", "radius": "14000"},
-#     "New York City": {"lat": "40.654447", "lng": "-73.957754", "radius": "20000"},
-#     "Los Angeles": {"lat": "34.080467", "lng": "-118.297799", "radius": "20000"},
-#     "Atlanta": {"lat": "33.764209", "lng": "-84.430916", "radius": "10000"},
-# }
-
-# citiesdf = pd.DataFrame({"options": cities})
-
-
-# def update_city():
-#     lat = city_features[st.session_state.city]["lat"]
-#     lng = city_features[st.session_state.city]["lng"]
-#     st.session_state.start = [float(lat), float(lng)]
-#     st.session_state.locations = [
-#         {
-#             "coords": [float(lat), float(lng)],
-#             "pop_name": st.session_state.city,
-#             "tip_name": st.session_state.city,
-#         }
-#     ]
-
-
-# destination_city = st.sidebar.selectbox(
-#     "Which city are you going to",
-#     citiesdf["options"],
-#     key="city",
-#     on_change=update_city,
-# )
