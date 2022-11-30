@@ -1,6 +1,7 @@
 # rendezvous
 DVA Project
-use our public application at https://rendezvous.streamlit.app/
+Users: use our public application at https://rendezvous.streamlit.app/
+# For Developers
 ## Installation
 - Download python 3.7 (I chose this cus we used it for HW1)
 - From the project directory, create environment
@@ -11,6 +12,9 @@ use our public application at https://rendezvous.streamlit.app/
     - `pip install -r requirements.txt`
 - Install local rendez package
     - `pip install -e .`
+
+## App Execution
+`streamlit run rendez/streamlit.py`
 
 ## Environment Variables
 add a file called "secrets.toml" to the `.streamlit` directory under `rendezvous`
