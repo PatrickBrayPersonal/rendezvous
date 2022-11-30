@@ -1,5 +1,6 @@
 # rendezvous
 DVA Project
+use our public application at https://rendezvous.streamlit.app/
 ## Installation
 - Download python 3.7 (I chose this cus we used it for HW1)
 - From the project directory, create environment
