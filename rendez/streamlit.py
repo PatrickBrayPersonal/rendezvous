@@ -39,7 +39,6 @@ radius = '20000' #radius around which to pull down places, in kilometers. Make a
 
 ##dummy dataframe for testing
 df = pd.DataFrame({"first column": [1, 2, 3, 4], "second column": [10, 20, 30, 40]})
-
 st.title(":beers: Welcome to Rendevous")
 st.subheader("The Fastest Way to Plan a Night Out")
 st.markdown(
@@ -280,3 +279,64 @@ for location in st.session_state.locations:
 
 st_data = st_folium(m, width=725) # call to render Folium map in Streamlit
 
+st.markdown(
+    """
+# How does it work?
+
+Our optimizer searches the solution space of all paths from the user’s starting point(s) to each desired business in the order that the user selects.
+
+## Data Structure - Directed Graph
+
+To formulate the optimization problem, we converted our input data to a directed graph of feasible solution paths. The edges of the graph are selected to illustrate the path that the user must take on their night-out. We optimize over a combination of the attributes of the businesses while minimizing the total distance traveled.
+
+|                 |                                        Nodes                                     |                                                       Edges                                                    |
+|-----------------|:--------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
+|     Represent   |   All potential businesses in the user’s area and the user’s current location.   |   Potential paths the user would take on their night-out. Edges are only created in the user-specified order.  |
+|     Attributes  |   Characteristics of the business from google places API (ratings, price, etc.)  |   Haversine distance between the connected nodes.                                                              |
+""")
+st.image("example_graph.jpeg")
+st.markdown("""
+Example directed graph with for visiting a theater, restaurant and bar in an area with two of each business type. An example solution to this graph is marked by the red edges. Stars represent the rating of each business, which our optimizer weighs against distance in order to find the best solution.
+
+## Preprocessing
+
+Many businesses fall into categories of multiple types. This causes the optimizer to typically recommend staying at the same business when going from one stop to the next. This is especially common for bars and restaurants. To meet the desires of our users we removed these edges from the solution graph in order to prevent the optimizer from recommending repeat locations.
+
+## Constraints
+
+The problem’s constraints shrink the solution space to allow for a contiguous and complete night-out.
+
+### Continuity Constraint
+
+Each selected edge must share both nodes with another edge or the starting/ending node.
+
+### Starting Constraint
+
+Starting node (user’s location) must have an outgoing edge connected.
+
+### Ending Constraint
+
+There must be one edge connecting to a node of final business type.
+
+## Objective
+
+The objective in the solver is designed to be flexible and adjusted by the user’s input for two priorities. The attributes of each business from the google places API are considered within the context of the user’s declared preferences. The “most important” selection from the fronted is weighted twice as heavily as the “what else is important to you” selection.
+
+|       Selection        |         Optimizer Minimizes     |
+|------------------------|:-------------------------------:|
+|     Highly Reputable   |   -rating, -user_ratings_total  |
+|     Great Location     |   distance                      |
+|     Unbeatable Price   |   price_level                   |
+|     Luxury Experience  |   -rating, -price_level         |
+
+## Solver – CP-SAT
+
+ Our optimizer was built using the [OR-Tools](https://developers.google.com/optimization) CP-SAT solver, an interface for a meta-heuristic optimizer on top of a satisfiability solver. The optimizer can minimize attributes for businesses and paths between businesses (nodes and edges) visited. We will fit all attributes to a standard normal distribution prior to optimization in order to prevent large variables from overwhelming the objective.
+
+## Attribute Scaling
+
+Input attributes (distance, price level, number of ratings) come on different scales. In order to prevent larger values from having an outsized effect on the objective, we fit all attributes to a standard normal distribution prior to optimization.
+
+The CP-SAT optimizer only accepts integer values as input. After scaling, attributes are multiplied by 10,000 and cast to integers to maintain data granularity.
+    """
+)
