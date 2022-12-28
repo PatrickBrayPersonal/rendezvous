@@ -5,14 +5,32 @@ from streamlit_folium import st_folium
 import requests
 from main import run
 from dotenv import find_dotenv, load_dotenv
-import os
 import statistics as stat
 
 load_dotenv(find_dotenv())
 
 # initialize important lists
-places = ["Restaurant","Amusement Park","Aquarium","Art Gallery","Bakery","Bar","Book Store","Bowling Alley","Cafe","Casino","Department Store","Library","Movie Theater",
-          "Museum","Night Club","Park","Shopping Mall","Tourist Attraction","Zoo"]
+places = [
+    "Restaurant",
+    "Amusement Park",
+    "Aquarium",
+    "Art Gallery",
+    "Bakery",
+    "Bar",
+    "Book Store",
+    "Bowling Alley",
+    "Cafe",
+    "Casino",
+    "Department Store",
+    "Library",
+    "Movie Theater",
+    "Museum",
+    "Night Club",
+    "Park",
+    "Shopping Mall",
+    "Tourist Attraction",
+    "Zoo",
+]
 key_to_id = {
     "Amusement Park": "amusement_park",
     "Aquarium": "aquarium",
@@ -32,18 +50,19 @@ key_to_id = {
     "Restaurant": "restaurant",
     "Shopping Mall": "shopping_mall",
     "Tourist Attraction": "tourist_attraction",
-    "Zoo": "zoo"
+    "Zoo": "zoo",
 }
 
-radius = '20000' #radius around which to pull down places, in kilometers. Make adjustable?
+radius = (
+    "20000"  # radius around which to pull down places, in kilometers. Make adjustable?
+)
 
 ##dummy dataframe for testing
 df = pd.DataFrame({"first column": [1, 2, 3, 4], "second column": [10, 20, 30, 40]})
 st.title(":beers: Welcome to Rendevous")
 st.subheader("The Fastest Way to Plan a Night Out")
 st.markdown(
-    """How To Use;
-1. :cityscape: Choose where you want to go 
+    """1. :cityscape: Choose where you want to go 
 2. :blue_heart: Choose what you care about
 3. :world_map: View your route!"""
 )
@@ -51,42 +70,61 @@ st.markdown(
 
 st.subheader("Your Night Out")
 
-if "locations" not in st.session_state: #default to displaying Washington DC
-    lat = '38.902260'
-    lng = '-77.035256'
-    st.session_state.start = [float(lat),float(lng)]
-    st.session_state.locations = [{'coords':[float(lat),float(lng)], 'pop_name':'Washington DC', 'tip_name':'Washington DC', 'tip_type': "City",
-                "total_ratings": 0,
-                "rating": 0,
-                "price_level" : 0.0 }]
+if "locations" not in st.session_state:  # default to displaying Washington DC
+    lat = "38.902260"
+    lng = "-77.035256"
+    st.session_state.start = [float(lat), float(lng)]
+    st.session_state.locations = [
+        {
+            "coords": [float(lat), float(lng)],
+            "pop_name": "Washington DC",
+            "tip_name": "Washington DC",
+            "tip_type": "City",
+            "total_ratings": 0,
+            "rating": 0,
+            "price_level": 0.0,
+        }
+    ]
 
 ##calc metrics
-st.session_state.metrics = {"avg_price": 0, "reputation": 0, "avg_number_reviews": 0  }
+st.session_state.metrics = {
+    "avg_price": 0,
+    "reputation": 0,
+    "avg_number_reviews": 0,
+    "distance": 0,
+}
 
 prices = []
 reviews = []
 ratings = []
 
 for spot in st.session_state.locations:
-    
-    if spot['price_level'] >= 0:
-        prices.append(spot['price_level'])
-    if spot['total_ratings'] >= 0:    
-        reviews.append(spot['total_ratings'])
-    if spot['rating'] >= 0:
-        ratings.append(spot['rating'])
 
-st.session_state.metrics = {"avg_price": stat.mean(prices), "reputation": stat.mean(ratings), "avg_number_reviews": stat.mean(reviews)  }
+    if spot["price_level"] >= 0:
+        prices.append(spot["price_level"])
+    if spot["total_ratings"] >= 0:
+        reviews.append(spot["total_ratings"])
+    if spot["rating"] >= 0:
+        ratings.append(spot["rating"])
 
-#display metrics
-m1, m2, m3 = st.columns(3)
+st.session_state.metrics = {
+    "avg_price": stat.mean(prices),
+    "reputation": stat.mean(ratings),
+    "avg_number_reviews": stat.mean(reviews),
+    "distance": 0,
+}
+
+# display metrics
+m1, m2, m3, m4 = st.columns(4)
 
 m1.markdown(":money_with_wings: **Price Level**")
-m1.write(round(st.session_state.metrics['avg_price'],2))
+m1.write(round(st.session_state.metrics["avg_price"], 2))
 m2.markdown(":star: **Star Rating**")
-m2.write(round(st.session_state.metrics['reputation'],2))
+m2.write(round(st.session_state.metrics["reputation"], 2))
 m3.markdown(":mega: **Average # Of Reviews**")
-m3.write(round(st.session_state.metrics['avg_number_reviews'],2))
+m3.write(round(st.session_state.metrics["avg_number_reviews"], 2))
+m4.markdown(":shoe: **Distance**")
+m4.write(round(st.session_state.metrics["distance"], 2))
 
 
 # =================SIDEBAR=======================
@@ -95,36 +133,54 @@ st.sidebar.subheader("Select Your Route Options")
 ##Destination Types Select List and Logic
 
 
+starting_point = st.sidebar.text_input(
+    "What address would you like to start from?", key="address"
+)
 
-starting_point = st.sidebar.text_input('What address would you like to start from?', key='address')
 
-def find_starting_address(): #find user supplied starting address and display it on map, also setting it up to be the first node in the optimizer
-    
+def find_starting_address():  # find user supplied starting address and display it on map, also setting it up to be the first node in the optimizer
+
     placesapikey = st.secrets["API_KEY"]
     locations = []
-    
-    url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + st.session_state.address.replace(" ", "%2C" ) + "&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&key=" + placesapikey
 
-    payload={}
+    url = (
+        "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input="
+        + st.session_state.address.replace(" ", "%2C")
+        + "&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&key="
+        + placesapikey
+    )
+
+    payload = {}
     headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload)
     if response.status_code != 200:
         st.error(f"API Key Failed {response.status_code}")
-    elif len(response.json()['candidates']) == 0:
+    elif len(response.json()["candidates"]) == 0:
         st.error(f"No results found for {st.session_state.address}")
     else:
-        result = response.json()['candidates'][0]
-        
-        locations.append({'coords':[result['geometry']['location']['lat'], result['geometry']['location']['lng']], 'pop_name':result['name'], 'tip_name':result['name'], "tip_type": "start", "total_ratings": 0,
-                "rating": 0,
-                "price_level" : 0.0 })
-            
-        st.session_state.locations = locations    
-        st.session_state.start = locations[0]['coords']
-    
+        result = response.json()["candidates"][0]
 
-address = st.sidebar.button('Find Address', on_click=find_starting_address)
+        locations.append(
+            {
+                "coords": [
+                    result["geometry"]["location"]["lat"],
+                    result["geometry"]["location"]["lng"],
+                ],
+                "pop_name": result["name"],
+                "tip_name": result["name"],
+                "tip_type": "start",
+                "total_ratings": 0,
+                "rating": 0,
+                "price_level": 0.0,
+            }
+        )
+
+        st.session_state.locations = locations
+        st.session_state.start = locations[0]["coords"]
+
+
+address = st.sidebar.button("Find Address", on_click=find_starting_address)
 
 destinations = pd.DataFrame({"options": places})
 
@@ -190,13 +246,13 @@ priority_2 = st.sidebar.selectbox(
 ##MAP TESTING####
 
 
-def plan_night_out(): #callback function of Submit button. Pulls down places from API and passes to optimizer and updates st.session_state.location with results
+def plan_night_out():  # callback function of Submit button. Pulls down places from API and passes to optimizer and updates st.session_state.location with results
     placesapikey = st.secrets["API_KEY"]
 
     types = [st.session_state.type1, st.session_state.type2, st.session_state.type3]
 
-    lat = str(st.session_state.locations[0]['coords'][0])
-    lng = str(st.session_state.locations[0]['coords'][1])
+    lat = str(st.session_state.locations[0]["coords"][0])
+    lng = str(st.session_state.locations[0]["coords"][1])
 
     locations = [st.session_state.locations[0]]
 
@@ -230,15 +286,15 @@ def plan_night_out(): #callback function of Submit button. Pulls down places fro
     USER_NODE = [
         [
             {
-                "geometry:location:lat": st.session_state.locations[0]['coords'][0],
-                "geometry:location:lng": st.session_state.locations[0]['coords'][1],
-                "name": st.session_state.locations[0]['pop_name']
+                "geometry:location:lat": st.session_state.locations[0]["coords"][0],
+                "geometry:location:lng": st.session_state.locations[0]["coords"][1],
+                "name": st.session_state.locations[0]["pop_name"],
             }
         ]
     ]  # the starting location in the format that the optimizer wants
 
     biz_lists = USER_NODE + file_contents
-    placesdf, message = run(
+    placesdf, message, soln = run(
         biz_lists=biz_lists,
         type_list=TYPES,
         priority_1=priority_1,
@@ -259,13 +315,12 @@ def plan_night_out(): #callback function of Submit button. Pulls down places fro
                 "tip_type": place["type"],
                 "total_ratings": place["user_ratings_total"],
                 "rating": place["rating"],
-                "price_level" : float(place["price_level"])
+                "price_level": float(place["price_level"]),
             }
         )
 
     st.session_state.locations = locations
     st.session_state.start = locations[0]["coords"]
-    
 
 
 submit = st.sidebar.button("Submit", on_click=plan_night_out)
@@ -274,10 +329,12 @@ m = folium.Map(location=st.session_state.start, zoom_start=14)
 
 for location in st.session_state.locations:
     folium.Marker(
-        location["coords"], popup=location["pop_name"], tooltip=f"{location['tip_name']}, {location['tip_type']}"
+        location["coords"],
+        popup=location["pop_name"],
+        tooltip=f"{location['tip_name']}, {location['tip_type']}",
     ).add_to(m)
 
-st_data = st_folium(m, width=725) # call to render Folium map in Streamlit
+st_data = st_folium(m, width=725)  # call to render Folium map in Streamlit
 
 st.markdown(
     """
@@ -293,9 +350,11 @@ To formulate the optimization problem, we converted our input data to a directed
 |-----------------|:--------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
 |     Represent   |   All potential businesses in the user’s area and the user’s current location.   |   Potential paths the user would take on their night-out. Edges are only created in the user-specified order.  |
 |     Attributes  |   Characteristics of the business from google places API (ratings, price, etc.)  |   Haversine distance between the connected nodes.                                                              |
-""")
+"""
+)
 st.image("example_graph.jpeg")
-st.markdown("""
+st.markdown(
+    """
 Example directed graph with for visiting a theater, restaurant and bar in an area with two of each business type. An example solution to this graph is marked by the red edges. Stars represent the rating of each business, which our optimizer weighs against distance in order to find the best solution.
 
 ## Preprocessing

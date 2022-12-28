@@ -51,7 +51,7 @@ def run(
     soln = optimize(nodes, edges, start_nodes, end_nodes, edge_obj, node_obj)
     print(soln)
     selected_nodes = reformat_for_frontend(soln, nodes, edges)
-    return selected_nodes, message
+    return selected_nodes, message, soln
 
 
 if __name__ == "__main__":
